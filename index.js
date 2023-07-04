@@ -1,5 +1,5 @@
 import express from 'express'
-import { pollyTts, pollyTtsNeural, pollyVoices } from './src/aws-polly.js';
+import { pollyTts, pollyTtsNeural } from './src/aws-polly.js';
 const app = express()
 const port = 8600
 
