@@ -1,0 +1,12 @@
+version: "3"
+services:
+  voice_generator:
+    image: ghcr.io/content-generators/voice-generator:main
+    restart: always
+    ports:
+      - 8600:8600
+    environment:
+      - AWS_ACCESS_KEY_ID=<REPLACE_ME>
+      - AWS_SECRET_ACCESS_KEY=<REPLACE_ME>
+    volumes:
+      - ./.polly-mp3:/voice-generator/.polly-mp3
