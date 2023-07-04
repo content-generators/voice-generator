@@ -110,98 +110,44 @@ export const pollyTts = async (text, voice) => {
   return await toVoiceUsingPolly(text, voice, true);
 };
 
-export const pollyVoices = () => {
-  return [
-    "Lotte",
-    "Maxim",
-    "Ayanda",
-    "Salli",
-    "Ola",
-    "Arthur",
-    "Ida",
-    "Tomoko",
-    "Remi",
-    "Geraint",
-    "Miguel",
-    "Elin",
-    "Lisa",
-    "Giorgio",
-    "Marlene",
-    "Ines",
-    "Kajal",
-    "Zhiyu",
-    "Zeina",
-    "Suvi",
-    "Karl",
-    "Gwyneth",
-    "Joanna",
-    "Lucia",
-    "Cristiano",
-    "Astrid",
-    "Andres",
-    "Vicki",
-    "Mia",
-    "Vitoria",
-    "Bianca",
-    "Chantal",
-    "Raveena",
-    "Daniel",
-    "Amy",
-    "Liam",
-    "Ruth",
-    "Kevin",
-    "Brian",
-    "Russell",
-    "Aria",
-    "Matthew",
-    "Aditi",
-    "Dora",
-    "Enrique",
-    "Hans",
-    "Hiujin",
-    "Carmen",
-    "Sofie",
-    "Ivy",
-    "Ewa",
-    "Maja",
-    "Gabrielle",
-    "Nicole",
-    "Filiz",
-    "Camila",
-    "Jacek",
-    "Thiago",
-    "Justin",
-    "Celine",
-    "Kazuha",
-    "Kendra",
-    "Arlet",
-    "Ricardo",
-    "Mads",
-    "Hannah",
-    "Mathieu",
-    "Lea",
-    "Sergio",
-    "Hala",
-    "Tatyana",
-    "Penelope",
-    "Naja",
-    "Olivia",
-    "Ruben",
-    "Laura",
-    "Takumi",
-    "Mizuki",
-    "Carla",
-    "Conchita",
-    "Jan",
-    "Kimberly",
-    "Liv",
-    "Adriano",
-    "Lupe",
-    "Joey",
-    "Pedro",
-    "Seoyeon",
-    "Emma",
-    "Niamh",
-    "Stephen",
-  ];
+
+export const pollyTtsNeural = async (text, voice) => {
+  const fileName = `./.polly-mp3/neural-${voice}-${text}.mp3`;
+  
+  const toVoiceUsingPolly = async (text, voice) => {
+    let polly = new Polly({
+      region: "us-east-1",
+    });
+
+    return new Promise((resolve, reject) => {
+      polly
+        .synthesizeSpeech({
+          Engine: "neural",
+          OutputFormat: "mp3",
+          Text: text,
+          VoiceId: voice,
+          TextType: "text",
+        })
+        .on("success", (response) => {
+          writeFile(fileName, response.data.AudioStream, function (err) {
+            if (err) {
+              return console.log(err);
+            }
+            console.log("The file was saved!");
+          });
+          resolve(response.data.AudioStream);
+        })
+        .on("error", (error) => {
+          console.log("toVoiceUsingPolly", error);
+          reject();
+        })
+        .send();
+    });
+  };
+
+  if (existsSync(fileName)) {
+    return readFile(fileName);
+  }
+
+  return await toVoiceUsingPolly(text, voice, true);
 };

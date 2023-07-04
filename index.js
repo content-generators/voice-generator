@@ -1,5 +1,5 @@
 import express from 'express'
-import { pollyTts, pollyVoices } from './src/aws-polly.js';
+import { pollyTts, pollyTtsNeural, pollyVoices } from './src/aws-polly.js';
 const app = express()
 const port = 8600
 
@@ -9,9 +9,10 @@ app.get('/polly', async (req, res) => {
   res.send(await pollyTts(text, voice))
 })
 
-app.get('/polly-voices', async (req, res) => {
-  res.set('Content-Type', 'text/json')
-  res.send(pollyVoices())
+app.get('/polly-neural', async (req, res) => {
+  const {text, voice} = req.query;
+  res.set('Content-Type', 'audio/mpeg')
+  res.send(await pollyTtsNeural(text, voice))
 })
 
 app.listen(port, () => {
