@@ -3,6 +3,8 @@ import "dotenv/config";
 
 import { existsSync, writeFile } from "fs";
 import { readFile } from "fs/promises";
+import crypto from 'crypto';
+
 
 aws.config.update({
   region: "us-east-1",
@@ -15,8 +17,12 @@ aws.config.update({
 
 const { Polly } = aws;
 
+const textToFileName = (text) => {
+  return crypto.createHash('md5').update(text).digest('hex');
+}
+
 export const pollyTts = async (text, voice) => {
-  const fileName = `./.polly-mp3/${voice}-${text}.mp3`;
+  const fileName = `./.polly-mp3/${voice}-${textToFileName(text)}.mp3`;
   const generateVoiceCompatibleString = (text) => {
     const regexForRemovingCode = /(```[a-z]*\n[\s\S]*?\n```)/gim;
     const matches = text.match(regexForRemovingCode);
@@ -112,8 +118,8 @@ export const pollyTts = async (text, voice) => {
 
 
 export const pollyTtsNeural = async (text, voice) => {
-  const fileName = `./.polly-mp3/neural-${voice}-${text}.mp3`;
-  
+  const fileName = `./.polly-mp3/neural-${voice}-${textToFileName(text)}.mp3`;
+
   const toVoiceUsingPolly = async (text, voice) => {
     let polly = new Polly({
       region: "us-east-1",
