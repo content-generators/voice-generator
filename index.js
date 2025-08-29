@@ -3,6 +3,15 @@ import { pollyTts, pollyTtsNeural } from './src/aws-polly.js';
 const app = express()
 const port = 8600
 
+app.get('/health-check', async (_, res) => {
+  res.status(200)
+    .set('Cache-Control', 'no-store')
+    .set('Access-Control-Allow-Origin', '*')
+    .send({
+      status: 'ok'
+    });
+})
+
 app.get('/polly', async (req, res) => {
   const {text, voice} = req.query;
   res.set('Content-Type', 'audio/mpeg')
