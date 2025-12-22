@@ -1,21 +1,17 @@
-import aws from "aws-sdk";
+import { PollyClient, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import "dotenv/config";
 
 import { existsSync, writeFile } from "fs";
 import { readFile } from "fs/promises";
 import crypto from 'crypto';
 
-
-aws.config.update({
+const pollyClient = new PollyClient({
   region: "us-east-1",
-  apiVersion: "v2",
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   },
 });
-
-const { Polly } = aws;
 
 const textToFileName = (text) => {
   return crypto.createHash('md5').update(text).digest('hex');
@@ -40,20 +36,20 @@ export const pollyTts = async (text, voice) => {
       });
 
     // Process Reserved Characters in SSML - https://docs.amazonaws.cn/en_us/polly/latest/dg/escapees.html
-    text = text
-      .replace(/&/g, "&amp;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&apos;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+    // text = text
+    //   .replace(/&/g, "&")
+    //   .replace(/"/g, """)
+    //   .replace(/'/g, "'")
+    //   .replace(/</g, "<")
+    //   .replace(/>/g, ">");
 
     // - <br/> : Gets converted to <break time="1s"/>
-    // Using `/&lt;br\/&gt;/ig` as Reserved are being converted in above section
+    // Using `/<br\/>/ig` as Reserved are being converted in above section
     // <p> and </p> : This will add a break in SSML
     text = text
-      .replace(/&lt;br\/&gt;/gi, '<break time="1s"/>')
-      .replace(/&lt;p&gt;/gi, "<p>")
-      .replace(/&lt;\/p&gt;/gi, "</p>");
+      .replace(/<br\/>/gi, '<break time="1s"/>')
+      .replace(/<p>/gi, "<p>")
+      .replace(/<\/p>/gi, "</p>");
 
     // - /n**TEXT** - Gets Converted to \n<emphasis level="strong">TEXT</emphasis>
     // - **TEXT** - Gets Converted to \n<emphasis level="moderate">TEXT</emphasis>
@@ -78,35 +74,35 @@ export const pollyTts = async (text, voice) => {
     return text;
   };
   const toVoiceUsingPolly = async (text, voice, sanatize) => {
-    let polly = new Polly({
-      region: "us-east-1",
+    console.log(sanatize ? generateVoiceCompatibleString(text) : text);
+    
+    const command = new SynthesizeSpeechCommand({
+      OutputFormat: "mp3",
+      Text: sanatize ? generateVoiceCompatibleString(text) : text,
+      VoiceId: voice,
+      TextType: "ssml",
     });
 
-    console.log(sanatize ? generateVoiceCompatibleString(text) : text);
-    return new Promise((resolve, reject) => {
-      polly
-        .synthesizeSpeech({
-          // Engine: "neural",
-          OutputFormat: "mp3",
-          Text: sanatize ? generateVoiceCompatibleString(text) : text,
-          VoiceId: voice,
-          TextType: "ssml",
-        })
-        .on("success", (response) => {
-          writeFile(fileName, response.data.AudioStream, function (err) {
-            if (err) {
-              return console.log(err);
-            }
-            console.log("The file was saved!");
-          });
-          resolve(response.data.AudioStream);
-        })
-        .on("error", (error) => {
-          console.log("toVoiceUsingPolly", error);
-          reject();
-        })
-        .send();
-    });
+    try {
+      const response = await pollyClient.send(command);
+      const audioStream = response.AudioStream;
+      const chunks = [];
+      for await (const chunk of audioStream) {
+        chunks.push(chunk);
+      }
+      const buffer = Buffer.concat(chunks);
+      
+      writeFile(fileName, buffer, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log("The file was saved!");
+      });
+      return buffer;
+    } catch (error) {
+      console.log("toVoiceUsingPolly", error);
+      throw error;
+    }
   };
 
   if (existsSync(fileName)) {
@@ -121,34 +117,34 @@ export const pollyTtsNeural = async (text, voice) => {
   const fileName = `./.polly-mp3/neural-${voice}-${textToFileName(text)}.mp3`;
 
   const toVoiceUsingPolly = async (text, voice) => {
-    let polly = new Polly({
-      region: "us-east-1",
+    const command = new SynthesizeSpeechCommand({
+      Engine: "neural",
+      OutputFormat: "mp3",
+      Text: text,
+      VoiceId: voice,
+      TextType: "text",
     });
 
-    return new Promise((resolve, reject) => {
-      polly
-        .synthesizeSpeech({
-          Engine: "neural",
-          OutputFormat: "mp3",
-          Text: text,
-          VoiceId: voice,
-          TextType: "text",
-        })
-        .on("success", (response) => {
-          writeFile(fileName, response.data.AudioStream, function (err) {
-            if (err) {
-              return console.log(err);
-            }
-            console.log("The file was saved!");
-          });
-          resolve(response.data.AudioStream);
-        })
-        .on("error", (error) => {
-          console.log("toVoiceUsingPolly", error);
-          reject();
-        })
-        .send();
-    });
+    try {
+      const response = await pollyClient.send(command);
+      const audioStream = response.AudioStream;
+      const chunks = [];
+      for await (const chunk of audioStream) {
+        chunks.push(chunk);
+      }
+      const buffer = Buffer.concat(chunks);
+
+      writeFile(fileName, buffer, function (err) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log("The file was saved!");
+      });
+      return buffer;
+    } catch (error) {
+      console.log("toVoiceUsingPolly", error);
+      throw error;
+    }
   };
 
   if (existsSync(fileName)) {
