@@ -1,7 +1,8 @@
 import express from 'express'
 import { pollyTts, pollyTtsNeural } from './src/aws-polly.js';
 const app = express()
-const port = 8600
+const port = process.env.VOICE_GENERATOR_PORT || 8600;
+
 
 app.get('/health-check', async (_, res) => {
   res.status(200)
