@@ -9,4 +9,4 @@ services:
       - AWS_ACCESS_KEY_ID=<REPLACE_ME>
       - AWS_SECRET_ACCESS_KEY=<REPLACE_ME>
     volumes:
-      - ./.polly-mp3:/voice-generator/.polly-mp3
+      - ./.mp3:/voice-generator/.mp3
