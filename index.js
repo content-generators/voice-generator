@@ -20,7 +20,7 @@ app.get('/health-check', async (_, res) => {
 })
 
 app.get('/generate', async (req, res) => {
-  let { text, voice, engine } = req.query;
+  let { text, tts_optimised_text, voice, engine } = req.query;
   res.set('Content-Type', 'audio/mpeg')
 
   if (!voice) {
@@ -46,7 +46,7 @@ app.get('/generate', async (req, res) => {
       res.send(await pollyTtsNeural(text, voice));
       break;
     case 'neutts':
-      res.send(await neuTts(text, voice));
+      res.send(await neuTts(text, tts_optimised_text, voice));
       break;
     default:
       res.set('Content-Type', 'application/json').json({ error: 'Unsupported engine' });
