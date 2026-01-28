@@ -51,6 +51,7 @@ app.get('/generate', async (req, res) => {
       break;
     case 'piper':
       res.send(await piperTTS(text, tts_optimised_text, voice))
+      break;
     default:
       res.set('Content-Type', 'application/json').json({ error: 'Unsupported engine' });
       return;
