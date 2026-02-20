@@ -2,6 +2,7 @@ import express from 'express'
 import { pollyTts, pollyTtsNeural } from './src/aws-polly.js';
 import { neuTts } from './src/neu-tts.js';
 import { piperTTS } from './src/piper-tts.js';
+import { kokoroTTS } from './src/kokoro-tts.js';
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 
@@ -51,6 +52,9 @@ app.get('/generate', async (req, res) => {
       break;
     case 'piper':
       res.send(await piperTTS(text, tts_optimised_text, voice))
+      break;
+    case 'kokoro':
+      res.send(await kokoroTTS(text, tts_optimised_text, voice))
       break;
     default:
       res.set('Content-Type', 'application/json').json({ error: 'Unsupported engine' });
