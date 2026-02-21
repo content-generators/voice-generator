@@ -5,6 +5,7 @@ import { piperTTS } from './src/piper-tts.js';
 import { kokoroTTS } from './src/kokoro-tts.js';
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
+import { removeEmojis } from './utils.js';
 
 const app = express()
 
@@ -23,6 +24,7 @@ app.get('/health-check', async (_, res) => {
 
 app.get('/generate', async (req, res) => {
   let { text, tts_optimised_text, voice, engine } = req.query;
+  text = removeEmojis(text);
   res.set('Content-Type', 'audio/mpeg')
 
   if (!voice) {
