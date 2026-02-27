@@ -11,6 +11,12 @@ const textToFileName = (text) => {
 export const neuTts = async (text, tts_optimised_text, voice, testing) => {
   const fileName = `./.mp3/neutts/neutts-${voice}-${textToFileName(text)}.mp3`;
 
+  // Check cache first
+  if (!testing && existsSync(fileName)) {
+    console.log(`Audio already exists - ${voice} : ${text}`);
+    return readFile(fileName);
+  }
+
   const toVoiceUsingAPI = async (text) => {
     try {
       const response = await fetch('http://192.168.1.100:8008/tts', {

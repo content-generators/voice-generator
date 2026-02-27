@@ -11,6 +11,12 @@ const textToFileName = (text) => {
 export const qwenTTS = async (text, tts_optimised_text, voice, testing) => {
   const fileName = `./.mp3/qwen/qwen-${voice}-${textToFileName(text)}.mp3`;
 
+  // Check cache first
+  if (!testing && existsSync(fileName)) {
+    console.log(`Audio already exists - ${voice} : ${text}`);
+    return readFile(fileName);
+  }
+
   const toVoiceUsingAPI = async (text) => {
     try {
       const response = await fetch('http://mac.mini:8000/tts', {
