@@ -17,7 +17,7 @@ const textToFileName = (text) => {
   return crypto.createHash('md5').update(text).digest('hex');
 }
 
-export const pollyTts = async (text, voice) => {
+export const pollyTts = async (text, voice, testing) => {
   const fileName = `./.mp3/polly/${voice}-${textToFileName(text)}.mp3`;
   const generateVoiceCompatibleString = (text) => {
     const regexForRemovingCode = /(```[a-z]*\n[\s\S]*?\n```)/gim;
@@ -75,7 +75,7 @@ export const pollyTts = async (text, voice) => {
   };
   const toVoiceUsingPolly = async (text, voice, sanatize) => {
     console.log(sanatize ? generateVoiceCompatibleString(text) : text);
-    
+
     const command = new SynthesizeSpeechCommand({
       OutputFormat: "mp3",
       Text: sanatize ? generateVoiceCompatibleString(text) : text,
@@ -91,13 +91,14 @@ export const pollyTts = async (text, voice) => {
         chunks.push(chunk);
       }
       const buffer = Buffer.concat(chunks);
-      
-      writeFile(fileName, buffer, function (err) {
-        if (err) {
-          return console.log(err);
-        }
-        console.log("The file was saved!");
-      });
+      if (!testing) {
+        writeFile(fileName, buffer, function (err) {
+          if (err) {
+            return console.log(err);
+          }
+          console.log("The file was saved!");
+        });
+      }
       return buffer;
     } catch (error) {
       console.log("toVoiceUsingPolly", error);
@@ -113,7 +114,7 @@ export const pollyTts = async (text, voice) => {
 };
 
 
-export const pollyTtsNeural = async (text, voice) => {
+export const pollyTtsNeural = async (text, voice, testing) => {
   const fileName = `./.mp3/polly/neural-${voice}-${textToFileName(text)}.mp3`;
 
   const toVoiceUsingPolly = async (text, voice) => {
@@ -134,12 +135,14 @@ export const pollyTtsNeural = async (text, voice) => {
       }
       const buffer = Buffer.concat(chunks);
 
-      writeFile(fileName, buffer, function (err) {
-        if (err) {
-          return console.log(err);
-        }
-        console.log("The file was saved!");
-      });
+      if (!testing) {
+        writeFile(fileName, buffer, function (err) {
+          if (err) {
+            return console.log(err);
+          }
+          console.log("The file was saved!");
+        });
+      }
       return buffer;
     } catch (error) {
       console.log("toVoiceUsingPolly", error);

@@ -23,7 +23,7 @@ app.get('/health-check', async (_, res) => {
 })
 
 app.get('/generate', async (req, res) => {
-  let { text, tts_optimised_text, voice, engine } = req.query;
+  let { text, tts_optimised_text, voice, engine, testing = false } = req.query;
   text = removeEmojis(text);
   res.set('Content-Type', 'audio/mpeg')
 
@@ -44,19 +44,19 @@ app.get('/generate', async (req, res) => {
 
   switch (engine) {
     case 'polly':
-      res.send(await pollyTts(text, voice))
+      res.send(await pollyTts(text, voice, testing))
       break;
     case 'polly-neural':
-      res.send(await pollyTtsNeural(text, voice));
+      res.send(await pollyTtsNeural(text, voice, testing));
       break;
     case 'neutts':
-      res.send(await neuTts(text, tts_optimised_text, voice));
+      res.send(await neuTts(text, tts_optimised_text, voice, testing));
       break;
     case 'piper':
-      res.send(await piperTTS(text, tts_optimised_text, voice))
+      res.send(await piperTTS(text, tts_optimised_text, voice, testing))
       break;
     case 'kokoro':
-      res.send(await kokoroTTS(text, tts_optimised_text, voice))
+      res.send(await kokoroTTS(text, tts_optimised_text, voice, testing))
       break;
     default:
       res.set('Content-Type', 'application/json').json({ error: 'Unsupported engine' });

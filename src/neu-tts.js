@@ -8,7 +8,7 @@ const textToFileName = (text) => {
   return crypto.createHash('md5').update(text).digest('hex');
 }
 
-export const neuTts = async (text, tts_optimised_text, voice) => {
+export const neuTts = async (text, tts_optimised_text, voice, testing) => {
   const fileName = `./.mp3/neutts/neutts-${voice}-${textToFileName(text)}.mp3`;
 
   const toVoiceUsingAPI = async (text) => {
@@ -28,12 +28,14 @@ export const neuTts = async (text, tts_optimised_text, voice) => {
       const buffer = await response.arrayBuffer();
       const audioBuffer = Buffer.from(buffer);
 
-      writeFile(fileName, audioBuffer, function (err) {
-        if (err) {
-          return console.log(err);
-        }
-        console.log("The file was saved!");
-      });
+      if (!testing) {
+        writeFile(fileName, audioBuffer, function (err) {
+          if (err) {
+            return console.log(err);
+          }
+          console.log("The file was saved!");
+        });
+      }
 
       return audioBuffer;
     } catch (error) {
@@ -44,7 +46,7 @@ export const neuTts = async (text, tts_optimised_text, voice) => {
 
   if (existsSync(fileName)) {
     console.log(`Audio already exist - ${voice} : ${text}`);
-    
+
     return readFile(fileName);
   }
 
