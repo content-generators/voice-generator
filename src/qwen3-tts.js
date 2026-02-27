@@ -8,8 +8,8 @@ const textToFileName = (text) => {
   return crypto.createHash('md5').update(text).digest('hex');
 }
 
-export const kokoroTTS = async (text, tts_optimised_text, voice, testing) => {
-  const fileName = `./.mp3/kokoro/kokoro-${voice}-${textToFileName(text)}.mp3`;
+export const qwenTTS = async (text, tts_optimised_text, voice, testing) => {
+  const fileName = `./.mp3/qwen/qwen-${voice}-${textToFileName(text)}.mp3`;
 
   const toVoiceUsingAPI = async (text) => {
     try {
@@ -21,9 +21,11 @@ export const kokoroTTS = async (text, tts_optimised_text, voice, testing) => {
         body: JSON.stringify({
           text,
           output_format: "mp3",
-          "model": "kokoro-v1.0",
-          speaker_name: voice,
-          "speed": "normal"
+          voice_description: "A bright, agile male voice with a natural upward lift, delivering lines at a brisk, energetic pace. Pitch leans high with spark, volume projects clearly to convey urgency and excitement. Personality: Energetic, precise, and inherently engaging",
+          model: "Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit",
+          "speed": "slow",
+          "temperature": 0.7,
+          "seed": 2686015967
         })
       });
 

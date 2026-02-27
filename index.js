@@ -3,6 +3,7 @@ import { pollyTts, pollyTtsNeural } from './src/aws-polly.js';
 import { neuTts } from './src/neu-tts.js';
 import { piperTTS } from './src/piper-tts.js';
 import { kokoroTTS } from './src/kokoro-tts.js';
+import { qwenTTS } from './src/qwen3-tts.js';
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { removeEmojis } from './utils.js';
@@ -57,6 +58,10 @@ app.get('/generate', async (req, res) => {
       break;
     case 'kokoro':
       res.send(await kokoroTTS(text, tts_optimised_text, voice, testing))
+      break;
+    case 'qwen3':
+    case 'qwen':
+      res.send(await qwenTTS(text, tts_optimised_text, voice, testing))
       break;
     default:
       res.set('Content-Type', 'application/json').json({ error: 'Unsupported engine' });
