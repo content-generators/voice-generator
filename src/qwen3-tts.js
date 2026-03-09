@@ -45,6 +45,8 @@ export const qwenTTS = async (text, tts_optimised_text, voice, testing) => {
   const fileName = `./.mp3/qwen/qwen-${voice}-${textToFileName(text)}.mp3`;
 
   // Check cache first
+  console.log(`Checking cache for file: ${!testing && existsSync(fileName)}`);
+  
   if (!testing && existsSync(fileName)) {
     console.log(`Audio already exists - ${voice} : ${text}`);
     return readFile(fileName);
@@ -62,15 +64,16 @@ export const qwenTTS = async (text, tts_optimised_text, voice, testing) => {
           output_format: "mp3",
           voice_description: VOICE_TO_DESCRIPTION[voice],
           model: "Qwen3-TTS-12Hz-1.7B-VoiceDesign-8bit",
-          "speed": "slow",
-          "temperature": 0.7,
-          "seed": 2686015967
+          "speed": "fast",
+          "temperature": 0,
+          "seed": 2825548063
         })
       });
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
 
       const buffer = await response.arrayBuffer();
       const audioBuffer = Buffer.from(buffer);
@@ -84,18 +87,15 @@ export const qwenTTS = async (text, tts_optimised_text, voice, testing) => {
         });
       }
 
+      console.log("Seed:", response.headers.get("x-seed"));
+
+
       return audioBuffer;
     } catch (error) {
       console.log("toVoiceUsingAPI", error);
       throw error;
     }
   };
-
-  if (existsSync(fileName)) {
-    console.log(`Audio already exist - ${voice} : ${text}`);
-
-    return readFile(fileName);
-  }
 
   return await toVoiceUsingAPI(tts_optimised_text || text);
 };

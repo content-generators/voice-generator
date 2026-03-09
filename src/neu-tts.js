@@ -50,12 +50,6 @@ export const neuTts = async (text, tts_optimised_text, voice, testing) => {
     }
   };
 
-  if (existsSync(fileName)) {
-    console.log(`Audio already exist - ${voice} : ${text}`);
-
-    return readFile(fileName);
-  }
-
   return await toVoiceUsingAPI(tts_optimised_text || text);
 };
 
