@@ -70,6 +70,36 @@ app.get('/generate', async (req, res) => {
   }
 })
 
+// OpenAI-compatible TTS endpoint
+app.post('/v1/audio/speech', async (req, res) => {
+  const { input, voice, model } = req.body;
+
+  if (!input) {
+    return res.status(400).json({ error: "'input' is required" });
+  }
+
+  if (!model) {
+    return res.status(400).json({ error: "'model' is required" });
+  }
+
+  if (model != 'kokoro') {
+    return res.status(400).json({ error: "'model' value is not supported" });
+  }
+
+  const safeVoice = voice || 'af_sarah';
+  const cleanText = removeEmojis(input);
+
+  res.set('Content-Type', 'audio/mpeg');
+
+  try {
+    const audio = await kokoroTTS(cleanText, null, safeVoice, false);
+    res.send(audio);
+  } catch (error) {
+    console.error("OpenAI-compatible endpoint error:", error);
+    res.status(500).json({ error: "Failed to generate speech" });
+  }
+});
+
 // Deprecated
 app.get('/polly', async (req, res) => {
   const { text, voice } = req.query;
