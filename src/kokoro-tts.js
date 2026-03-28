@@ -19,7 +19,7 @@ export const kokoroTTS = async (text, tts_optimised_text, voice, testing) => {
 
   const toVoiceUsingAPI = async (text) => {
     try {
-      const response = await fetch('http://mac.mini:8000/tts', {
+      const response = await fetch('http://0.0.0.0:8000/tts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
