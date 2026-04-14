@@ -73,6 +73,7 @@ app.get('/generate', async (req, res) => {
 // OpenAI-compatible TTS endpoint
 app.post('/v1/audio/speech', async (req, res) => {
   const { input, voice, model } = req.body;
+  const { testing } = req.headers;
 
   if (!input) {
     return res.status(400).json({ error: "'input' is required" });
@@ -92,7 +93,7 @@ app.post('/v1/audio/speech', async (req, res) => {
   res.set('Content-Type', 'audio/mpeg');
 
   try {
-    const audio = await kokoroTTS(cleanText, null, safeVoice, false);
+    const audio = await kokoroTTS(cleanText, null, safeVoice, testing == "true");
     res.send(audio);
   } catch (error) {
     console.error("OpenAI-compatible endpoint error:", error);

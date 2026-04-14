@@ -10,7 +10,7 @@ const textToFileName = (text) => {
 
 export const kokoroTTS = async (text, tts_optimised_text, voice, testing) => {
   const fileName = `./.mp3/kokoro/kokoro-${voice}-${textToFileName(text)}.mp3`;
-
+  
   // Check cache first
   if (!testing && existsSync(fileName)) {
     console.log(`Audio already exists - ${voice} : ${text}`);
@@ -26,10 +26,10 @@ export const kokoroTTS = async (text, tts_optimised_text, voice, testing) => {
         },
         body: JSON.stringify({
           text,
-          output_format: "mp3",
+          "output_format": "mp3",
           "model": "kokoro-v1.0",
-          speaker_name: voice,
-          "speed": "normal"
+          "speaker_name": voice,
+          "speed_value": "normal"
         })
       });
 
