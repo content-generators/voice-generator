@@ -75,10 +75,11 @@ app.post('/v1/audio/speech', async (req, res) => {
   const { input, voice, model } = req.body;
   const { testing, optimised_text } = req.headers;
 
-  
-
-  if (!input) {
-    return res.status(400).json({ error: "'input' is required" });
+  if (input === null || input === undefined || input.trim() === "") {
+    if (existsSync(`./pre-recorded/empty.mp3`)) {
+      res.send(await readFile(`./pre-recorded/empty.mp3`));
+      return;
+    }
   }
 
   if (!model) {
@@ -89,10 +90,10 @@ app.post('/v1/audio/speech', async (req, res) => {
     return res.status(400).json({ error: "'model' value is not supported" });
   }
 
-  const tts_optimised_text = decodeURIComponent(optimised_text);
-
   const safeVoice = voice || 'af_sarah';
   const cleanText = removeEmojis(input);
+
+  const tts_optimised_text = optimised_text ? decodeURIComponent(optimised_text) : cleanText;
 
   res.set('Content-Type', 'audio/mpeg');
 
