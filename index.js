@@ -7,6 +7,7 @@ import { qwenTTS } from './src/qwen3-tts.js';
 import { existsSync } from "fs";
 import { readFile } from "fs/promises";
 import { removeEmojis } from './utils.js';
+import { parseBuffer } from 'music-metadata';
 
 const app = express()
 
@@ -99,6 +100,12 @@ app.post('/v1/audio/speech', async (req, res) => {
 
   try {
     const audio = await kokoroTTS(cleanText, tts_optimised_text, safeVoice, testing == "true");
+    try {
+      const metadata = await parseBuffer(audio, { mimeType: "audio/mpeg" });
+      res.set("X-Audio-Duration", String(metadata.format.duration || 0));
+    } catch (metaError) {
+      console.error("Failed to parse audio metadata:", metaError);
+    }
     res.send(audio);
   } catch (error) {
     console.error("OpenAI-compatible endpoint error:", error);
